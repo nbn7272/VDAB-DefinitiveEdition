@@ -39,7 +39,11 @@ class Note extends FlxSprite
 	public var inEditor:Bool = false;
 	private var earlyHitMult:Float = 0.5;
 
-	public static var swagWidth:Float = 160 * 0.7;
+	public static var scales:Array<Float> = [0.7, 0.6, 0.55, 0.46];
+	public static var swidths:Array<Float> = [160, 120, 110, 90];
+	public static var posRest:Array<Int> = [0, 35, 50, 70];
+
+	public static var swagWidth:Float = 0.7;
 	public static var PURP_NOTE:Int = 0;
 	public static var GREEN_NOTE:Int = 2;
 	public static var BLUE_NOTE:Int = 1;
@@ -84,9 +88,10 @@ class Note extends FlxSprite
 
 	private function set_noteType(value:String):String {
 		noteSplashTexture = PlayState.SONG.splashSkin;
+		/*
 		colorSwap.hue = ClientPrefs.arrowHSV[noteData % 4][0] / 360;
 		colorSwap.saturation = ClientPrefs.arrowHSV[noteData % 4][1] / 100;
-		colorSwap.brightness = ClientPrefs.arrowHSV[noteData % 4][2] / 100;
+		colorSwap.brightness = ClientPrefs.arrowHSV[noteData % 4][2] / 100;*/
 
 		if(noteData > -1 && noteType != value) {
 			switch(value) {
@@ -94,9 +99,9 @@ class Note extends FlxSprite
 					ignoreNote = mustPress;
 					reloadNote('HURT');
 					noteSplashTexture = 'HURTnoteSplashes';
-					colorSwap.hue = 0;
+					/*colorSwap.hue = 0;
 					colorSwap.saturation = 0;
-					colorSwap.brightness = 0;
+					colorSwap.brightness = 0;*/
 					if(isSustainNote) {
 						missHealth = 0.1;
 					} else {
@@ -108,15 +113,16 @@ class Note extends FlxSprite
 			}
 			noteType = value;
 		}
-		noteSplashHue = colorSwap.hue;
+		/*noteSplashHue = colorSwap.hue;
 		noteSplashSat = colorSwap.saturation;
-		noteSplashBrt = colorSwap.brightness;
+		noteSplashBrt = colorSwap.brightness;*/
 		return value;
 	}
 
 	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false, ?inEditor:Bool = false, ?isPlayer:Bool = false)
 	{
 		super();
+		var mania = PlayState.SONG.mania;
 
 		if (prevNote == null)
 			prevNote = this;
@@ -125,7 +131,7 @@ class Note extends FlxSprite
 		isSustainNote = sustainNote;
 		this.inEditor = inEditor;
 
-		x += (ClientPrefs.middleScroll ? PlayState.STRUM_X_MIDDLESCROLL : PlayState.STRUM_X) + 50;
+		x += (ClientPrefs.middleScroll ? PlayState.STRUM_X_MIDDLESCROLL : PlayState.STRUM_X) + 50 - posRest[mania];
 		// MAKE SURE ITS DEFINITELY OFF SCREEN?
 		y -= 2000;
 		this.strumTime = strumTime;
@@ -135,24 +141,12 @@ class Note extends FlxSprite
 
 		if(noteData > -1) {
 			texture = '';
-			colorSwap = new ColorSwap();
-			shader = colorSwap.shader;
+			/*colorSwap = new ColorSwap();
+			shader = colorSwap.shader;*/
 
-			x += swagWidth * (noteData % 4);
+			x += swidths[mania] * swagWidth * (noteData % Main.ammo[mania]);
 			if(!isSustainNote) { //Doing this 'if' check to fix the warnings on Senpai songs
-				var animToPlay:String = '';
-				switch (noteData % 4)
-				{
-					case 0:
-						animToPlay = 'purple';
-					case 1:
-						animToPlay = 'blue';
-					case 2:
-						animToPlay = 'green';
-					case 3:
-						animToPlay = 'red';
-				}
-				animation.play(animToPlay + 'Scroll');
+				animation.play(Main.gfxLetter[Main.gfxIndex[mania][noteData]]);
 			}
 		}
 
@@ -162,48 +156,192 @@ class Note extends FlxSprite
 		switch (PlayState.SONG.song.toLowerCase())
 		{
 			case 'cheating':
+			if (mania == 0) {
 				switch (noteData)
 				{
 					case 0:
 						x += swagWidth * 3;
 						notetolookfor = 3;
-						animation.play('purplehold');
+						animation.play('purpleScroll');
 					case 1:
 						x += swagWidth * 1;
 						notetolookfor = 1;
-						animation.play('bluehold');
+						animation.play('blueScroll');
 					case 2:
 						x += swagWidth * 0;
 						notetolookfor = 0;
-						animation.play('greenhold');
+						animation.play('greenScroll');
 					case 3:
+						notetolookfor = 2;
+						x += swagWidth * 2;
+						animation.play('redScroll');
+				}
+			}
+			else if (mania == 1) {
+				switch (noteData)
+				{
+					case 0:
+						x += swagWidth * 5;
+						notetolookfor = 5;
+						animation.play('purpleScroll');
+					case 1:
+						x += swagWidth * 3;
+						notetolookfor = 3;
+						animation.play('greenScroll');
+					case 2:
+						notetolookfor = 1;
+						x += swagWidth * 1;
+						animation.play('redScroll');
+					case 3:
+						notetolookfor = 2;
+						x += swagWidth * 2;
+						animation.play('yellowScroll');
+					case 4:
+						x += swagWidth * 0;
+						notetolookfor = 0;
+						animation.play('blueScroll');
+					case 5:
+						x += swagWidth * 4;
+						notetolookfor = 4;
+						animation.play('darkScroll');
+				}
+			}
+			else {
+				switch (noteData)
+				{
+					case 0:
+						x += swagWidth * 5;
+						notetolookfor = 5;
+						animation.play('purpleScroll');
+					case 1:
+						x += swagWidth * 1;
+						notetolookfor = 1;
+						animation.play('blueScroll');
+					case 2:
+						x += swagWidth * 7;
+						notetolookfor = 7;
+						animation.play('greenScroll');
+					case 3:
+						notetolookfor = 3;
+						x += swagWidth * 3;
+						animation.play('redScroll');
+					case 4:
+						x += swagWidth * 0;
+						notetolookfor = 0;
+						animation.play('whiteScroll');
+					case 5:
 						x += swagWidth * 2;
 						notetolookfor = 2;
-						animation.play('redhold');
+						animation.play('yellowScroll');
+					case 6:
+						x += swagWidth * 8;
+						notetolookfor = 8;
+						animation.play('violetScroll');
+					case 7:
+						x += swagWidth * 6;
+						notetolookfor = 6;
+						animation.play('blackScroll');
+					case 8:
+						notetolookfor = 4;
+						x += swagWidth * 4;
+						animation.play('darkScroll');
 				}
+			}
 				flipY = (Math.round(Math.random()) == 0); //fuck you
 				flipX = (Math.round(Math.random()) == 1);
 
 			default:
+				if (mania == 0) {
 				switch (noteData)
 				{
 					case 0:
 						x += swagWidth * 0;
 						notetolookfor = 0;
-						animation.play('purplehold');
+						animation.play('purpleScroll');
 					case 1:
 						x += swagWidth * 1;
 						notetolookfor = 1;
-						animation.play('bluehold');
+						animation.play('blueScroll');
 					case 2:
 						x += swagWidth * 2;
 						notetolookfor = 2;
-						animation.play('greenhold');
+						animation.play('greenScroll');
 					case 3:
-						x += swagWidth * 3;
 						notetolookfor = 3;
-						animation.play('redhold');
+						x += swagWidth * 3;
+						animation.play('redScroll');
 				}
+			}
+			else if (mania == 1) {
+				switch (noteData)
+				{
+					case 0:
+						x += swagWidth * 0;
+						notetolookfor = 0;
+						animation.play('purpleScroll');
+					case 1:
+						x += swagWidth * 1;
+						notetolookfor = 1;
+						animation.play('greenScroll');
+					case 2:
+						notetolookfor = 2;
+						x += swagWidth * 2;
+						animation.play('redScroll');
+					case 3:
+						notetolookfor = 3;
+						x += swagWidth * 3;
+						animation.play('yellowScroll');
+					case 4:
+						x += swagWidth * 4;
+						notetolookfor = 4;
+						animation.play('blueScroll');
+					case 5:
+						x += swagWidth * 5;
+						notetolookfor = 5;
+						animation.play('darkScroll');
+				}
+			}
+			else {
+				switch (noteData)
+				{
+					case 0:
+						x += swagWidth * 0;
+						notetolookfor = 0;
+						animation.play('purpleScroll');
+					case 1:
+						x += swagWidth * 1;
+						notetolookfor = 1;
+						animation.play('blueScroll');
+					case 2:
+						x += swagWidth * 2;
+						notetolookfor = 2;
+						animation.play('greenScroll');
+					case 3:
+						notetolookfor = 3;
+						x += swagWidth * 3;
+						animation.play('redScroll');
+					case 4:
+						x += swagWidth * 4;
+						notetolookfor = 4;
+						animation.play('whiteScroll');
+					case 5:
+						x += swagWidth * 5;
+						notetolookfor = 5;
+						animation.play('yellowScroll');
+					case 6:
+						x += swagWidth * 6;
+						notetolookfor = 6;
+						animation.play('violetScroll');
+					case 7:
+						x += swagWidth * 7;
+						notetolookfor = 7;
+						animation.play('blackScroll');
+					case 8:
+						notetolookfor = 8;
+						x += swagWidth * 8;
+						animation.play('darkScroll');
+				}
+			}
 		}
 		switch (PlayState.SONG.song.toLowerCase())
 		{
@@ -259,17 +397,7 @@ class Note extends FlxSprite
 			offsetX += width / 2;
 			copyAngle = false;
 
-			switch (noteData)
-			{
-				case 0:
-					animation.play('purpleholdend');
-				case 1:
-					animation.play('blueholdend');
-				case 2:
-					animation.play('greenholdend');
-				case 3:
-					animation.play('redholdend');
-			}
+			animation.play(Main.gfxLetter[Main.gfxIndex[mania][noteData]] + ' hold end');
 
 			updateHitbox();
 
@@ -279,26 +407,16 @@ class Note extends FlxSprite
 				offsetX += 30;
 
 			if (prevNote.isSustainNote)
-			{
-				switch (prevNote.noteData)
 				{
-					case 0:
-						prevNote.animation.play('purplehold');
-					case 1:
-						prevNote.animation.play('bluehold');
-					case 2:
-						prevNote.animation.play('greenhold');
-					case 3:
-						prevNote.animation.play('redhold');
+					prevNote.animation.play(Main.gfxLetter[Main.gfxIndex[mania][noteData]] + ' hold piece');
+	
+					prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.05 * PlayState.SONG.speed;
+					if(PlayState.isPixelStage) {
+						prevNote.scale.y *= 1.19;
+					}
+					prevNote.updateHitbox();
+					// prevNote.setGraphicSize();
 				}
-
-				prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.05 * PlayState.songSpeed;
-				if(PlayState.isPixelStage) {
-					prevNote.scale.y *= 1.19;
-				}
-				prevNote.updateHitbox();
-				// prevNote.setGraphicSize();
-			}
 
 			if(PlayState.isPixelStage) {
 				scale.y *= PlayState.daPixelZoom;
@@ -368,26 +486,18 @@ class Note extends FlxSprite
 	}
 
 	function loadNoteAnims() {
-		animation.addByPrefix('greenScroll', 'green0');
-		animation.addByPrefix('redScroll', 'red0');
-		animation.addByPrefix('blueScroll', 'blue0');
-		animation.addByPrefix('purpleScroll', 'purple0');
-
-		if (isSustainNote)
+		for (i in 0...21)
 		{
-			animation.addByPrefix('purpleholdend', 'pruple end hold');
-			animation.addByPrefix('greenholdend', 'green hold end');
-			animation.addByPrefix('redholdend', 'red hold end');
-			animation.addByPrefix('blueholdend', 'blue hold end');
+			animation.addByPrefix(Main.gfxLetter[i], Main.gfxLetter[i] + '0');
 
-			animation.addByPrefix('purplehold', 'purple hold piece');
-			animation.addByPrefix('greenhold', 'green hold piece');
-			animation.addByPrefix('redhold', 'red hold piece');
-			animation.addByPrefix('bluehold', 'blue hold piece');
+			if (isSustainNote)
+			{
+				animation.addByPrefix(Main.gfxLetter[i] + ' hold piece', Main.gfxLetter[i] + ' hold piece');
+				animation.addByPrefix(Main.gfxLetter[i] + ' hold end', Main.gfxLetter[i] + ' hold end');
+			}
 		}
-
 		
-		setGraphicSize(Std.int(width * ClientPrefs.noteSize));
+		setGraphicSize(Std.int(width * scales[PlayState.SONG.mania]));
 		updateHitbox();
 	}
 

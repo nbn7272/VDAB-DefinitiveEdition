@@ -31,7 +31,7 @@ using StringTools;
 // TO DO: Redo the menu creation system for not being as dumb
 class OptionsState extends MusicBeatState
 {
-	var options:Array<String> = ['Notes', 'Controls', 'Preferences', 'Customize Gameplay'];
+	var options:Array<String> = ['Controls', 'Preferences', 'Customize Gameplay'];
 	private var grpOptions:FlxTypedGroup<Alphabet>;
 	private static var curSelected:Int = 0;
 	public static var menuBG:FlxSprite;
@@ -404,7 +404,7 @@ class ControlsSubstate extends MusicBeatSubstate {
 	private var bindLength:Int = 0;
 
 	var optionShit:Array<Dynamic> = [
-		['NOTES'],
+		['4K'],
 		['Left', 'note_left'],
 		['Down', 'note_down'],
 		['Up', 'note_up'],
@@ -415,6 +415,13 @@ class ControlsSubstate extends MusicBeatSubstate {
 		['Down', 'ui_down'],
 		['Up', 'ui_up'],
 		['Right', 'ui_right'],
+		['6K'],
+		['A1', 'note_left'],
+		['A2', 'note_down'],
+		['A3', 'note_up'],
+		['A5', 'note_right'],
+		['A6', 'note_up'],
+		['A7', 'note_right'],
 		[''],
 		['Reset', 'reset'],
 		['Accept', 'accept'],

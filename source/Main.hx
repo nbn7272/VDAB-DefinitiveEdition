@@ -19,7 +19,22 @@ class Main extends Sprite
 	var skipSplash:Bool = true; // Whether to skip the flixel splash screen that appears in release mode.
 	var startFullscreen:Bool = false; // Whether to start the game in fullscreen on desktop targets
 	public static var fpsVar:FPS;
-
+	public static var ammo:Array<Int> = [4, 6, 9]; //had to reuse the 21 key code sorry
+	public static var gfxIndex:Array<Dynamic> = [
+		[3, 4, 5, 6],
+		[3, 5, 6, 14, 4, 17],
+		[3, 4, 5, 6, 7, 14, 15, 16, 17]
+	];
+	public static var gfxHud:Array<Dynamic> = [
+		[1, 2, 3, 4],
+		[1, 3, 4, 1, 2, 4],
+		[1, 2, 3, 4, 5, 1, 2, 3, 4]
+	];
+	public static var gfxDir:Array<String> = ['SHARPLEFT', 'LEFT', 'DOWN', 'UP', 'RIGHT', 'SPACE', 'PLUS', 'SHARPRIGHT'];
+	public static var charDir:Array<String> = ['LEFT', 'LEFT', 'DOWN', 'UP', 'DOWN', 'RIGHT', 'UP', 'RIGHT', 'UP', 'LEFT', 'UP', 'RIGHT', 'DOWN'];
+	public static var gfxLetter:Array<String> = ['mardi', 'deep', 'aqua', 'purple', 'blue', 'green', 'red', 'white', 'old', 'pink', 'lavender', 'orange', 'infra', 'blurple', 'yellow', 'violet', 'black', 'dark', 'gray', 'jonquil', 'shamrock'];
+	public static var gfxLetterAlt:Array<String> = ['mardi', 'deep', 'aqua', 'left', 'down', 'up', 'right', 'white', 'old', 'pink', 'lavender', 'orange', 'infra', 'blurple', 'yel', 'violet', 'black', 'dark', 'gray', 'jonquil', 'shamrock'];
+	//sorry vice and verwex
 	// You can pretty much ignore everything from here on - your code should go in your states.
 
 	public static function main():Void
@@ -70,7 +85,6 @@ class Main extends Sprite
 		#end
 
 		Paths.getModFolders();
-		ClientPrefs.startControls();
 		addChild(new FlxGame(gameWidth, gameHeight, initialState, zoom, framerate, framerate, skipSplash, startFullscreen));
 
 		#if !mobile

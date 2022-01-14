@@ -53,8 +53,25 @@ class ClientPrefs {
 		keyBinds.set('ui_down', [S, DOWN]);
 		keyBinds.set('ui_up', [W, UP]);
 		keyBinds.set('ui_right', [D, RIGHT]);
-		
+
+		keyBinds.set('A1', [S]);
+		keyBinds.set('A2', [D]);
+		keyBinds.set('A3', [F]);
+		keyBinds.set('A5', [J]);
+		keyBinds.set('A6', [K]);
+		keyBinds.set('A7', [L]);
+
+		keyBinds.set('B1', [A]);
+		keyBinds.set('B2', [S]);
+		keyBinds.set('B3', [D]);
+		keyBinds.set('B4', [F]);
+		keyBinds.set('B5', [SPACE]);
+		keyBinds.set('B6', [H]);
+		keyBinds.set('B7', [J]);
+		keyBinds.set('B8', [K]);
+		keyBinds.set('B9', [L]);		
 		keyBinds.set('accept', [SPACE, ENTER]);
+
 		keyBinds.set('back', [BACKSPACE, ESCAPE]);
 		keyBinds.set('pause', [ENTER, ESCAPE]);
 		keyBinds.set('reset', [R, NONE]);

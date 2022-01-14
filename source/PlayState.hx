@@ -347,6 +347,9 @@ class PlayState extends MusicBeatState
 	/*var swagBG:FlxSprite;
 	var unswagBG:FlxSprite;*/
 
+	public static var mania = 0;
+
+
 	override public function create()
 	{
 		#if MODS_ALLOWED
@@ -380,6 +383,8 @@ class PlayState extends MusicBeatState
 
 		if (SONG == null)
 			SONG = Song.loadFromJson('tutorial');
+
+		mania = SONG.mania;
 
 		Conductor.mapBPMChanges(SONG);
 		Conductor.changeBPM(SONG.bpm);
@@ -2396,11 +2401,11 @@ class PlayState extends MusicBeatState
 				{
 					if(songNotes[1] > -1) { //Real notes
 						var daStrumTime:Float = songNotes[0];
-						var daNoteData:Int = Std.int(songNotes[1] % 4);
+						var daNoteData:Int = Std.int(songNotes[1] % Main.ammo[mania]);
 	
 						var gottaHitNote:Bool = section.mustHitSection;
 	
-						if (songNotes[1] > 3)
+						if (songNotes[1] > Main.ammo[mania] - 1)
 						{
 							gottaHitNote = !section.mustHitSection;
 						}
@@ -2543,10 +2548,51 @@ class PlayState extends MusicBeatState
 
 	private function generateStaticArrows(player:Int):Void
 	{
-		for (i in 0...4)
+		for (i in 0...Main.ammo[mania])
 		{
 			// FlxG.log.add(i);
 			var babyArrow:StrumNote = new StrumNote(ClientPrefs.middleScroll ? STRUM_X_MIDDLESCROLL : STRUM_X, strumLine.y, i, player);
+
+			var skin:String = 'NOTE_assets';
+			if(SONG.arrowSkin != null && SONG.arrowSkin.length > 1) skin = SONG.arrowSkin;
+			if(isPixelStage)
+			{
+				babyArrow.loadGraphic(Paths.image('weeb/pixelUI/' + skin));
+				babyArrow.width = babyArrow.width / 4;
+				babyArrow.height = babyArrow.height / 5;
+				babyArrow.loadGraphic(Paths.image('weeb/pixelUI/' + skin), true, Math.floor(babyArrow.width), Math.floor(babyArrow.height));
+				babyArrow.animation.add('green', [6]);
+				babyArrow.animation.add('red', [7]);
+				babyArrow.animation.add('blue', [5]);
+				babyArrow.animation.add('purplel', [4]);
+
+				babyArrow.setGraphicSize(Std.int(babyArrow.width * Note.scales[mania]));
+				babyArrow.updateHitbox();
+				babyArrow.antialiasing = false;
+
+				babyArrow.x += Note.swidths[mania] * Note.swagWidth * Math.abs(i);
+
+				var dirName = Main.gfxDir[Main.gfxHud[mania][i]];
+				var pressName = Main.gfxLetterAlt[Main.gfxIndex[mania][i]];
+				babyArrow.animation.addByPrefix('static', 'arrow' + dirName);
+				babyArrow.animation.addByPrefix('pressed', pressName + ' press', 24, false);
+				babyArrow.animation.addByPrefix('confirm', pressName + ' confirm', 24, false);
+			}
+			else
+			{
+				babyArrow.frames = Paths.getSparrowAtlas(skin);
+				babyArrow.antialiasing = ClientPrefs.globalAntialiasing;
+				babyArrow.setGraphicSize(Std.int(babyArrow.width * Note.scales[mania]));
+				var dirName = Main.gfxDir[Main.gfxHud[mania][i]];
+				var pressName = Main.gfxLetterAlt[Main.gfxIndex[mania][i]];
+				babyArrow.animation.addByPrefix('static', 'arrow' + dirName);
+				babyArrow.animation.addByPrefix('pressed', pressName + ' press', 24, false);
+				babyArrow.animation.addByPrefix('confirm', pressName + ' confirm', 24, false);
+				babyArrow.x += Note.swidths[mania] * Note.swagWidth * Math.abs(i);
+			}
+
+			babyArrow.updateHitbox();
+			babyArrow.scrollFactor.set();
 			if (!isStoryMode)
 			{
 				babyArrow.y -= 10;
@@ -2562,6 +2608,11 @@ class PlayState extends MusicBeatState
 			{
 				opponentStrums.add(babyArrow);
 			}
+
+			babyArrow.playAnim('static');
+			babyArrow.x += 50;
+			babyArrow.x += ((FlxG.width / 2) * player);
+			babyArrow.x -= Note.posRest[mania];
 
 			strumLineNotes.add(babyArrow);
 			babyArrow.postAddedToGroup();
@@ -3617,7 +3668,9 @@ class PlayState extends MusicBeatState
 				strumY += daNote.offsetY;
 				strumAngle += daNote.offsetAngle;
 				strumAlpha *= daNote.multAlpha;
-				var center:Float = strumY + Note.swagWidth / 2;
+				
+				var swagWidth = Note.swidths[0] * Note.scales[mania];
+				var center:Float = strumY + swagWidth / 2;
 
 				if(daNote.copyX) {
 					daNote.x = strumX;
@@ -3718,79 +3771,7 @@ class PlayState extends MusicBeatState
 						}
 
 						var animToPlay:String = '';
-						switch (Math.abs(daNote.noteData))
-						{
-							case 0:
-								animToPlay = 'singLEFT';
-								switch (curSong.toLowerCase())
-									{
-									case 'sucked':
-										FlxG.camera.shake(0.0075, 0.1);
-								    	if(ClientPrefs.flashing)camHUD.x = camHUD.x + -40;
-										if(ClientPrefs.flashing)camHUD.y = 0;
-									}
-									switch(dad.curCharacter)
-									{
-										case 'expunged-tilt':
-										camHUD.angle = camHUD.angle + 1;
-									}
-								if(ClientPrefs.followarrow) dadCamFollowY = 0;
-								if(ClientPrefs.followarrow)	dadCamFollowX = -40;
-							case 1:
-								animToPlay = 'singDOWN';
-								switch (curSong.toLowerCase())
-									{
-									case 'sucked':
-										FlxG.camera.shake(0.0075, 0.1);
-										if(ClientPrefs.flashing)camHUD.x = 0;
-										if(ClientPrefs.flashing)camHUD.y = camHUD.y + 40;
-									case 'disposition':
-							    		camHUD.shake(0.0065, 0.1);
-								     	if(health > 0.05) health -= 0.01;
-									}
-									switch(dad.curCharacter)
-									{
-										case 'expunged-tilt':
-										camHUD.angle = camHUD.angle + 1;
-									}
-								if(ClientPrefs.followarrow) dadCamFollowY = 40;
-								if(ClientPrefs.followarrow)	dadCamFollowX = 0;
-							case 2:
-								animToPlay = 'singUP';
-								switch (curSong.toLowerCase())
-									{
-									case 'sucked':
-										FlxG.camera.shake(0.0075, 0.1);
-										if(ClientPrefs.flashing)camHUD.x = 0;
-										if(ClientPrefs.flashing)camHUD.y = camHUD.y + -40;
-									}
-									switch(dad.curCharacter)
-									{
-										case 'expunged-tilt':
-										camHUD.angle = camHUD.angle + 1;
-									}
-								if(ClientPrefs.followarrow) dadCamFollowY = -40;
-								if(ClientPrefs.followarrow)	dadCamFollowX = 0;
-							case 3:
-								animToPlay = 'singRIGHT';
-								switch (curSong.toLowerCase())
-									{
-									case 'sucked':
-										FlxG.camera.shake(0.0075, 0.1);
-										if(ClientPrefs.flashing)camHUD.x = camHUD.x + 40;
-										if(ClientPrefs.flashing)camHUD.y = 0;
-									case 'disposition':
-							    		camHUD.shake(0.0065, 0.1);
-								     	if(health > 0.05) health -= 0.01;
-									}
-									switch(dad.curCharacter)
-									{
-										case 'expunged-tilt':
-										camHUD.angle = camHUD.angle + 1;
-									} 
-								if(ClientPrefs.followarrow) dadCamFollowY = 0;
-								if(ClientPrefs.followarrow)	dadCamFollowX = 40;
-							}
+						animToPlay = 'sing' + Main.charDir[Main.gfxHud[mania][Std.int(Math.abs(daNote.noteData))]];
 						if(daNote.noteType == 'GF Sing') {
 							gf.playAnim(animToPlay + altAnim, true);
 							gf.holdTimer = 0;
@@ -3841,7 +3822,7 @@ class PlayState extends MusicBeatState
 					if(daNote.isSustainNote && !daNote.animation.curAnim.name.endsWith('end')) {
 						time += 0.15;
 					}
-					StrumPlayAnim(true, Std.int(Math.abs(daNote.noteData)) % 4, time);
+					StrumPlayAnim(true, Std.int(Math.abs(daNote.noteData)) % Main.ammo[mania], time);
 					daNote.hitByOpponent = true;
 
 					callOnLuas('opponentNoteHit', [notes.members.indexOf(daNote), Math.abs(daNote.noteData), daNote.noteType, daNote.isSustainNote]);
@@ -4973,6 +4954,73 @@ class PlayState extends MusicBeatState
 		var down = controls.NOTE_DOWN;
 		var left = controls.NOTE_LEFT;
 
+		var sH = [
+			controls.A1,
+			controls.A2,
+			controls.A3,
+			controls.A5,
+			controls.A6,
+			controls.A7
+		];
+
+		var nH = [
+			controls.B1,
+			controls.B2,
+			controls.B3,
+			controls.B4,
+			controls.B5,
+			controls.B6,
+			controls.B7,
+			controls.B8,
+			controls.B9
+		];
+
+
+		var sP = [
+			controls.A1_P,
+			controls.A2_P,
+			controls.A3_P,
+			controls.A5_P,
+			controls.A6_P,
+			controls.A7_P
+		];
+
+
+		var nP = [
+			controls.B1_P,
+			controls.B2_P,
+			controls.B3_P,
+			controls.B4_P,
+			controls.B5_P,
+			controls.B6_P,
+			controls.B7_P,
+			controls.B8_P,
+			controls.B9_P
+		];
+
+
+		var sR = [
+			controls.A1_R,
+			controls.A2_R,
+			controls.A3_R,
+			controls.A5_R,
+			controls.A6_R,
+			controls.A7_R
+		];
+
+
+		var nR = [
+			controls.B1_R,
+			controls.B2_R,
+			controls.B3_R,
+			controls.B4_R,
+			controls.B5_R,
+			controls.B6_R,
+			controls.B7_R,
+			controls.B8_R,
+			controls.B9_R
+		];
+
 		var upP = controls.NOTE_UP_P;
 		var rightP = controls.NOTE_RIGHT_P;
 		var downP = controls.NOTE_DOWN_P;
@@ -4987,20 +5035,43 @@ class PlayState extends MusicBeatState
 		var controlReleaseArray:Array<Bool> = [leftR, downR, upR, rightR];
 		var controlHoldArray:Array<Bool> = [left, down, up, right];
 
+		switch (mania)
+		{
+			case 1:
+				controlArray = sP;
+				controlReleaseArray = sR;
+				controlHoldArray = sH;
+			case 2:
+				controlArray = nP;
+				controlReleaseArray = nR;
+				controlHoldArray = nH;
+		}
+		var anyH = false;
+		var anyP = false;
+		var anyR = false;
+		for (i in 0...controlArray.length)
+		{
+			if (controlHoldArray[i])
+				anyH = true;
+			if (controlArray[i])
+				anyP = true;
+			if (controlReleaseArray[i])
+				anyR = true;
+		}
 		// FlxG.watch.addQuick('asdfa', upP);
 		if (!boyfriend.stunned && generatedMusic)
 		{
 			// rewritten inputs???
 			notes.forEachAlive(function(daNote:Note)
 			{
-				// hold note functions
+					// hold note functions
 				if (daNote.isSustainNote && controlHoldArray[daNote.noteData] && daNote.canBeHit 
 				&& daNote.mustPress && !daNote.tooLate && !daNote.wasGoodHit) {
 					goodNoteHit(daNote);
 				}
 			});
 
-			if ((controlHoldArray.contains(true) || controlArray.contains(true)) && !endingSong) {
+			if(anyH && !endingSong){
 				var canMiss:Bool = !ClientPrefs.ghostTapping;
 				if (controlArray.contains(true)) {
 					for (i in 0...controlArray.length) {
@@ -5110,7 +5181,7 @@ class PlayState extends MusicBeatState
 		RecalculateRating();
 
 		var animToPlay:String = '';
-		switch (Math.abs(daNote.noteData) % 4)
+		switch (Math.abs(daNote.noteData) % Main.ammo[mania])
 		{
 			case 0:
 				animToPlay = 'singLEFTmiss';
@@ -5119,6 +5190,16 @@ class PlayState extends MusicBeatState
 			case 2:
 				animToPlay = 'singUPmiss';
 			case 3:
+				animToPlay = 'singRIGHTmiss';
+			case 4:
+				animToPlay = 'singUPmiss';
+			case 5:
+				animToPlay = 'singLEFTmiss';
+			case 6:
+				animToPlay = 'singDOWNmiss';
+			case 7:
+				animToPlay = 'singUPmiss';
+			case 8:
 				animToPlay = 'singRIGHTmiss';
 		}
 
@@ -5173,6 +5254,16 @@ class PlayState extends MusicBeatState
 				case 2:
 					boyfriend.playAnim('singUPmiss', true);
 				case 3:
+					boyfriend.playAnim('singRIGHTmiss', true);
+				case 4:
+					boyfriend.playAnim('singUPmiss', true);
+				case 5:
+					boyfriend.playAnim('singLEFTmiss', true);
+				case 6:
+					boyfriend.playAnim('singDOWNmiss', true);
+				case 7:
+					boyfriend.playAnim('singUPmiss', true);
+				case 8:
 					boyfriend.playAnim('singRIGHTmiss', true);
 			}
 			vocals.volume = 0;
@@ -5231,70 +5322,7 @@ class PlayState extends MusicBeatState
 				if(note.noteType == 'Alt Animation') daAlt = '-alt';
 	
 				var animToPlay:String = '';
-				switch (Std.int(Math.abs(note.noteData)))
-				{
-					case 0:
-						animToPlay = 'singLEFT';
-						switch (curSong.toLowerCase())
-						{
-						case 'sucked':
-						   camHUD.x = 0;
-						   camHUD.y = 0;
-					    }
-						if (UsingNewCam)
-							{
-								isDadGlobal = false;
-								moveCamera(false);
-							}
-							if(ClientPrefs.followarrow) camFollowY = 0;
-							if(ClientPrefs.followarrow)	camFollowX = -40;
-					case 1:
-						animToPlay = 'singDOWN';
-						switch (curSong.toLowerCase())
-						{
-						case 'sucked':
-						   camHUD.x = 0;
-						   camHUD.y = 0;
-					    }
-						if (UsingNewCam)
-							{
-								isDadGlobal = false;
-								moveCamera(false);
-							}
-							if(ClientPrefs.followarrow) camFollowY = 40;
-							if(ClientPrefs.followarrow)	camFollowX = 0;
-					case 2:
-						animToPlay = 'singUP';
-						switch (curSong.toLowerCase())
-						{
-						case 'sucked':
-						   camHUD.x = 0;
-						   camHUD.y = 0;
-					    }
-						
-						if (UsingNewCam)
-							{
-								isDadGlobal = false;
-								moveCamera(false);
-							}
-							if(ClientPrefs.followarrow) camFollowY = -40;
-							if(ClientPrefs.followarrow)	camFollowX = 0;
-					case 3:
-						animToPlay = 'singRIGHT';
-						switch (curSong.toLowerCase())
-						{
-						case 'sucked':
-						   camHUD.x = 0;
-						   camHUD.y = 0;
-					    }
-						if (UsingNewCam)
-							{
-								isDadGlobal = false;
-								moveCamera(false);
-							}
-							if(ClientPrefs.followarrow) camFollowY = 0;
-							if(ClientPrefs.followarrow)	camFollowX = 40;
-				}
+				animToPlay = 'sing' + Main.charDir[Main.gfxHud[mania][Std.int(Math.abs(note.noteData))]];
 
 				if(note.noteType == 'GF Sing') {
 					gf.playAnim(animToPlay + daAlt, true);
@@ -5324,7 +5352,7 @@ class PlayState extends MusicBeatState
 				if(note.isSustainNote && !note.animation.curAnim.name.endsWith('end')) {
 					time += 0.15;
 				}
-				StrumPlayAnim(false, Std.int(Math.abs(note.noteData)) % 4, time);
+				StrumPlayAnim(false, Std.int(Math.abs(note.noteData)) % Main.ammo[mania], time);
 			} else {
 				playerStrums.forEach(function(spr:StrumNote)
 				{

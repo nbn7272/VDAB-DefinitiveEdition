@@ -22,7 +22,7 @@ class StrumNote extends FlxSprite
 		this.noteData = leData;
 		super(x, y);
 
-		var skin:String = 'NOTE_assets';
+		/*var skin:String = 'NOTE_assets'; //why
 		if(PlayState.SONG.arrowSkin != null && PlayState.SONG.arrowSkin.length > 1 && player != 1)
 			{
 				skin = PlayState.SONG.arrowSkin;
@@ -66,57 +66,32 @@ class StrumNote extends FlxSprite
 					animation.add('confirm', [15, 19], 24, false);
 			}
 		}
-		else
+		else //WHY THE NOTE THINGS ARE HERE BRUH
 		{
-			frames = Paths.getSparrowAtlas(skin);
-			animation.addByPrefix('green', 'arrowUP');
-			animation.addByPrefix('blue', 'arrowDOWN');
-			animation.addByPrefix('purple', 'arrowLEFT');
-			animation.addByPrefix('red', 'arrowRIGHT');
-			antialiasing = ClientPrefs.globalAntialiasing;
-			setGraphicSize(Std.int(width * ClientPrefs.noteSize));
-			if (PlayState.SONG.song.toLowerCase() == 'cheating')
-				{
-					animation.addByPrefix('green', 'arrowLEFT');
-					animation.addByPrefix('blue', 'arrowDOWN');
-					animation.addByPrefix('purple', 'arrowRIGHT');
-					animation.addByPrefix('red', 'arrowUP');
-					antialiasing = ClientPrefs.globalAntialiasing;
-					setGraphicSize(Std.int(width * ClientPrefs.noteSize));
-				}
-
-			switch (Math.abs(leData))
-			{
-				case 0:
-					animation.addByPrefix('static', 'arrowLEFT');
-					animation.addByPrefix('pressed', 'left press', 24, false);
-					animation.addByPrefix('confirm', 'left confirm', 24, false);
-				case 1:
-					animation.addByPrefix('static', 'arrowDOWN');
-					animation.addByPrefix('pressed', 'down press', 24, false);
-					animation.addByPrefix('confirm', 'down confirm', 24, false);
-				case 2:
-					animation.addByPrefix('static', 'arrowUP');
-					animation.addByPrefix('pressed', 'up press', 24, false);
-					animation.addByPrefix('confirm', 'up confirm', 24, false);
-				case 3:
-					animation.addByPrefix('static', 'arrowRIGHT');
-					animation.addByPrefix('pressed', 'right press', 24, false);
-					animation.addByPrefix('confirm', 'right confirm', 24, false);
-			}
+			babyArrow.frames = Paths.getSparrowAtlas(skin);
+			babyArrow.antialiasing = ClientPrefs.globalAntialiasing;
+			babyArrow.setGraphicSize(Std.int(babyArrow.width * Note.scales[_song.mania]));
+			var dirName = Main.gfxDir[Main.gfxHud[_song.mania][i]];
+			var pressName = Main.gfxLetterAlt[Main.gfxIndex[_song.mania][i]];
+			babyArrow.animation.addByPrefix('static', 'arrow' + dirName);
+			babyArrow.animation.addByPrefix('pressed', pressName + ' press', 24, false);
+			babyArrow.animation.addByPrefix('confirm', pressName + ' confirm', 24, false);
+			babyArrow.x += Note.swidths[mania] * Note.swagWidth * Math.abs(i);
 		}
 
 		updateHitbox();
 		scrollFactor.set();
+	}*/
 	}
 
 	public function postAddedToGroup() {
 		playAnim('static');
-		x += Note.swagWidth * noteData;
+		trace('SEX');
+		/*x += Note.swagWidth * noteData;
 		x += 50;
 		x += ((FlxG.width / 2) * player);
-		ID = noteData;
-	}
+		ID = noteData;*/
+	} //yes im stupid
 
 	override function update(elapsed:Float) {
 		if(resetAnim > 0) {
@@ -138,7 +113,13 @@ class StrumNote extends FlxSprite
 		animation.play(anim, force);
 		centerOffsets();
 		centerOrigin();
-		if(animation.curAnim == null || animation.curAnim.name == 'static') {
+		offset.x = frameWidth / 2;
+		offset.y = frameHeight / 2;
+
+		offset.x -= 156 * Note.scales[PlayState.SONG.mania] / 2;
+		offset.y -= 156 * Note.scales[PlayState.SONG.mania] / 2;
+
+		/*if(animation.curAnim == null || animation.curAnim.name == 'static') {
 			colorSwap.hue = 0;
 			colorSwap.saturation = 0;
 			colorSwap.brightness = 0;
@@ -150,7 +131,7 @@ class StrumNote extends FlxSprite
 			if(animation.curAnim.name == 'confirm' && !PlayState.isPixelStage) {
 				updateConfirmOffset();
 			}
-		}
+		}*/ //fuck
 	}
 
 	function updateConfirmOffset() { //TO DO: Find a calc to make the offset work fine on other angles
